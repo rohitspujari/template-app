@@ -37,7 +37,12 @@ class Header extends Component {
 
   render() {
     //console.log(this.props);
-    const { authData, authState, signOut } = this.props;
+    const { authData, authState } = this.props;
+
+    if (authState !== 'signedIn') {
+      return null;
+    }
+
     return (
       <AppBar position="static">
         <Toolbar>

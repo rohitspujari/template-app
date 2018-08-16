@@ -22,27 +22,16 @@ class App extends Component {
     signedIn: false
   };
 
-  myListner = Hub.listen('auth', this, 'MyListener');
+  authListner = Hub.listen('auth', this, 'authListener');
 
   onHubCapsule = capsule => {
     console.log(capsule);
     const { channel, payload } = capsule;
     if (payload.event == 'signOut') {
       this.setState({ signedIn: false });
+    } else {
+      this.setState({ signedIn: true });
     }
-  };
-
-  componentDidMount() {
-    // this.setState({ username: Auth.user.username });
-  }
-
-  protectedContent = () => {
-    return (
-      <Fragment>
-        <Header signOut={this.signOut} />
-        <IoTComponent />
-      </Fragment>
-    );
   };
 
   render() {
@@ -50,30 +39,14 @@ class App extends Component {
     return (
       <Authenticator
         includeGreetings={false}
-        hideDefault={this.state.signedIn}
         className="App"
         theme={myAuthTheme}
-        onStateChange={this.handleAuthStateChange}
       >
-        {this.state.signedIn && this.protectedContent()}
+        <Header />
+        <IoTComponent />
       </Authenticator>
     );
   }
-
-  handleAuthStateChange = state => {
-    if (state === 'signedIn') {
-      this.setState({ signedIn: true });
-    }
-  };
-
-  signOut = props => {
-    Auth.signOut()
-      .then(data => {
-        //props.onStateChange('signIn');
-        this.setState({ signedIn: false });
-      })
-      .catch(err => console.log(err));
-  };
 }
 
 export default App;
