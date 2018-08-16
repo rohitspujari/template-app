@@ -26,9 +26,18 @@ const styles = {
 
 class Header extends Component {
   state = {};
+
+  signOut = () => {
+    Auth.signOut()
+      .then(data => {
+        this.props.onStateChange('signIn');
+      })
+      .catch(err => console.log(err));
+  };
+
   render() {
     //console.log(this.props);
-    const { authData, authState } = this.props;
+    const { authData, authState, signOut } = this.props;
     return (
       <AppBar position="static">
         <Toolbar>
@@ -50,10 +59,7 @@ class Header extends Component {
           >
             {authData && authData.username}
           </Typography>
-          <Button
-            color="inherit"
-            onClick={() => this.props.signOut(this.props)}
-          >
+          <Button color="inherit" onClick={this.signOut}>
             Logout
           </Button>
         </Toolbar>

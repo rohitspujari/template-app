@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import Button from '@material-ui/core/Button';
 import logo from './logo.svg';
 import { withAuthenticator } from 'aws-amplify-react';
@@ -12,6 +12,8 @@ import Clock from './components/Clock';
 import PubSub from './components/PubSub';
 import Header from './components/Header';
 import myAuthTheme from './utils/myAuthTheme';
+import { Hub } from 'aws-amplify';
+import IoTComponent from './components/IoTComponent';
 
 Amplify.configure(aws_exports);
 
@@ -20,21 +22,40 @@ class App extends Component {
     signedIn: false
   };
 
+  myListner = Hub.listen('auth', this, 'MyListener');
+
+  onHubCapsule = capsule => {
+    console.log(capsule);
+    const { channel, payload } = capsule;
+    if (payload.event == 'signOut') {
+      this.setState({ signedIn: false });
+    }
+  };
+
   componentDidMount() {
     // this.setState({ username: Auth.user.username });
   }
-  render() {
-    console.log(Auth);
-    console.log(this.props);
 
+  protectedContent = () => {
+    return (
+      <Fragment>
+        <Header signOut={this.signOut} />
+        <IoTComponent />
+      </Fragment>
+    );
+  };
+
+  render() {
+    //console.log(Auth);
     return (
       <Authenticator
         includeGreetings={false}
+        hideDefault={this.state.signedIn}
         className="App"
         theme={myAuthTheme}
         onStateChange={this.handleAuthStateChange}
       >
-        {this.state.signedIn && <Header signOut={this.signOut} />}
+        {this.state.signedIn && this.protectedContent()}
       </Authenticator>
     );
   }
@@ -48,7 +69,7 @@ class App extends Component {
   signOut = props => {
     Auth.signOut()
       .then(data => {
-        props.onStateChange('signIn');
+        //props.onStateChange('signIn');
         this.setState({ signedIn: false });
       })
       .catch(err => console.log(err));
